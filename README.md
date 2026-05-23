@@ -41,9 +41,12 @@
 
 ```bash
 npm install
-cp agents.config.example.json agents.config.json
 npm start          # 启动服务 + 自动打开浏览器
 ```
+
+默认使用内置 mock agent，无需安装任何外部工具或模型即可体验辩论 / 讨论流程。
+
+要接入真实模型：`cp agents.config.example.json agents.config.json`，然后把想用的 agent 的 `enabled` 改为 `true`（Ollama / CLI 示例已在配置里）。
 
 你也可以分步操作：
 
@@ -216,9 +219,12 @@ The result panel displays these paths with copy buttons.
 
 ```bash
 npm install
-cp agents.config.example.json agents.config.json
 npm start          # starts server + opens browser
 ```
+
+Mock agents are enabled by default — no external tools or models needed to try it out.
+
+To use real models: `cp agents.config.example.json agents.config.json`, then set `"enabled": true` on the agents you want (Ollama / CLI examples included in the config).
 
 Step-by-step alternative:
 
