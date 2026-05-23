@@ -1,7 +1,7 @@
 import { createServer } from "node:http";
 import { spawn } from "node:child_process";
 import { randomUUID } from "node:crypto";
-import { createReadStream, existsSync } from "node:fs";
+import { createReadStream, existsSync, readFileSync } from "node:fs";
 import { mkdir, readdir, readFile, stat, unlink, writeFile } from "node:fs/promises";
 import { dirname, extname, join, resolve } from "node:path";
 import { tmpdir } from "node:os";
@@ -841,7 +841,8 @@ function buildDiscussionHtmlPrompt(session, agent) {
     `- HTML 要用于展示最终方案，不是代码说明；视觉上要有标题、核心方案、分事项决策、执行步骤、风险与验收标准，但文案要像产品方案页，不要像会议纪要。`,
     `- 只根据“已敲定事项”提炼，不要回看或复述原始长对话。控制 HTML 正文在 1200-1800 中文字。`,
     `- 使用内联 CSS，不依赖外部资源，不使用脚本。`,
-    `- 不要把所有原始讨论全文塞进 HTML；只提炼最终方案。`
+    `- 不要把所有原始讨论全文塞进 HTML；只提炼最终方案。`,
+    `【重要】HTML 必须直接内嵌在回复中，不要写到外部文件。不要使用 write_file 或任何文件写入工具。`
   ].join("\n");
 }
 
@@ -1999,7 +2000,22 @@ function extractHtmlDocument(content, session) {
 
   const htmlStart = raw.search(/<!doctype html>|<html[\s>]/i);
   if (htmlStart >= 0) {
-    return raw.slice(htmlStart).trim();
+    const extracted = raw.slice(htmlStart).trim();
+    // 兜底：如果提取的 HTML 不足 800 字符且包含 .html 文件路径，尝试读文件
+    if (extracted.length < 800) {
+      const fileMatch = extracted.match(/([\w./-]+\.html)/i);
+      if (fileMatch) {
+        try {
+          const filePath = fileMatch[1];
+          if (existsSync(filePath)) {
+            return readFileSync(filePath, "utf8").trim();
+          }
+        } catch {
+          // 读文件失败，继续用提取结果
+        }
+      }
+    }
+    return extracted;
   }
 
   const escaped = raw
