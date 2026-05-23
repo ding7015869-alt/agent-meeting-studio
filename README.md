@@ -164,6 +164,12 @@ Codex 这类需要把最终回答写入文件的 CLI 可以用：
 
 `research.enabled` 开启时，后端会在会话开始前用 Bing RSS 检索主题相关公开信息，把标题、摘要和链接放进每个 agent 的提示词里。agent 必须说明使用了哪些线索，或说明为什么本轮不依赖外部信息。
 
+## 案例展示
+
+![Case Study](docs/case-study.jpg)
+
+*三个 CLI agent（架构 / 反方 / 收敛）围绕技术方案进行多轮辩论，实时输出会话记录。*
+
 ---
 
 # Agent Meeting Studio (English)
@@ -332,3 +338,9 @@ If your agent reads from stdin, set `"stdin": "{{prompt}}"`.
 ## Web Research
 
 When `research.enabled` is on, the backend fetches public information about the topic via Bing RSS before the session starts. Article titles, snippets, and URLs are injected into each agent's prompt. Agents must cite which clues they used — or explain why they didn't rely on external information this round.
+
+## Case Study
+
+![Case Study](docs/case-study.jpg)
+
+*Three CLI agents (Architect / Devil's Advocate / Converger) running a multi-round technical debate with live session output.*
