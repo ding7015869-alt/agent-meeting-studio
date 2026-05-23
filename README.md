@@ -45,15 +45,14 @@ cp agents.config.example.json agents.config.json
 npm start          # 启动服务 + 自动打开浏览器
 ```
 
-> ⚡ **快速配置：把下面这段话发给你的 AI 助手（Hermes / Claude / ChatGPT），它会帮你自动装好 Ollama、拉模型、改配置。**
+> ⚡ **快速配置：把下面这段话发给你的 AI 助手，它会把自己接入 Agent Meeting Studio。**
 >
 > ```
-> 请帮我配置 Agent Meeting Studio。项目在本地，路径就是当前目录。
-> 1. 检查是否安装了 Ollama，没有就装
-> 2. ollama pull qwen2.5:7b、llama3.1:8b、mistral:7b
-> 3. 启动 ollama serve
-> 4. 编辑 agents.config.json，确保三个 agent 的 enabled 为 true，baseUrl 为 http://127.0.0.1:11434/v1
-> 5. npm start 验证能跑通
+> 你现在正在和我对话——所以你就是我要接入的 AI。请把自己配进 agents.config.json。
+> 1. command 填你自己的 CLI 命令，args 用 {{prompt}}
+> 2. 生成 3 个角色：主理人、思路位、评估位，共用一个 command 但 stance/mission 不同
+> 3. 如果你没有 CLI，fallback 到 Ollama：ollama pull qwen2.5:7b llama3.1:8b mistral:7b && ollama serve
+> 4. 配置完成后 npm start 验证
 > ```
 
 你也可以分步操作：
@@ -231,15 +230,14 @@ cp agents.config.example.json agents.config.json
 npm start          # starts server + opens browser
 ```
 
-> ⚡ **Quick setup: send the prompt below to your AI assistant (Hermes / Claude / ChatGPT) — it will install Ollama, pull models, and configure everything automatically.**
+> ⚡ **Quick setup: send this to your AI — it will wire itself in as the backend.**
 >
 > ```
-> Please help me set up Agent Meeting Studio. The project is in the current directory.
-> 1. Check if Ollama is installed, install it if not
-> 2. ollama pull qwen2.5:7b llama3.1:8b mistral:7b
-> 3. Start ollama serve
-> 4. Edit agents.config.json: ensure all three agents have "enabled": true and "baseUrl": "http://127.0.0.1:11434/v1"
-> 5. Run npm start and verify it works
+> You are the AI I'm talking to — plug yourself into agents.config.json.
+> 1. Use command mode with your own CLI command, args with {{prompt}}
+> 2. Create 3 roles (Lead / Ideator / Evaluator), same command, different stance/mission
+> 3. If no CLI, fallback: ollama pull qwen2.5:7b llama3.1:8b mistral:7b && ollama serve
+> 4. npm start to verify
 > ```
 
 Step-by-step alternative:
