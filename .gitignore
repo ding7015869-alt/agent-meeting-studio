@@ -1,0 +1,13 @@
+node_modules/
+dist/
+.DS_Store
+agents.config.json
+data/sessions/*.json
+!data/sessions/.gitkeep
+data/exports/*.html
+!data/exports/.gitkeep
+data/backups/
+.env
+.env.*
+!.env.example
+.codex/
