@@ -1,6 +1,7 @@
 # Agent Meeting Studio
 
 本地多 agent 辩论 / 讨论工具。你输入一个辩题、思路或方案，选择几个本地 agent，它们按真实 CLI 顺序调用，并把过程保存成可复盘会话。
+![screenshot](docs/screenshot.png)
 
 主界面默认中文，右上角可以切换 English，方便公开发布后给英文用户使用。
 
