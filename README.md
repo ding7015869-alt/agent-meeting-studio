@@ -41,12 +41,20 @@
 
 ```bash
 npm install
+cp agents.config.example.json agents.config.json
 npm start          # 启动服务 + 自动打开浏览器
 ```
 
-默认使用内置 mock agent，无需安装任何外部工具或模型即可体验辩论 / 讨论流程。
-
-要接入真实模型：`cp agents.config.example.json agents.config.json`，然后把想用的 agent 的 `enabled` 改为 `true`（Ollama / CLI 示例已在配置里）。
+> ⚡ **快速配置：把下面这段话发给你的 AI 助手（Hermes / Claude / ChatGPT），它会帮你自动装好 Ollama、拉模型、改配置。**
+>
+> ```
+> 请帮我配置 Agent Meeting Studio。项目在本地，路径就是当前目录。
+> 1. 检查是否安装了 Ollama，没有就装
+> 2. ollama pull qwen2.5:7b、llama3.1:8b、mistral:7b
+> 3. 启动 ollama serve
+> 4. 编辑 agents.config.json，确保三个 agent 的 enabled 为 true，baseUrl 为 http://127.0.0.1:11434/v1
+> 5. npm start 验证能跑通
+> ```
 
 你也可以分步操作：
 
@@ -219,12 +227,20 @@ The result panel displays these paths with copy buttons.
 
 ```bash
 npm install
+cp agents.config.example.json agents.config.json
 npm start          # starts server + opens browser
 ```
 
-Mock agents are enabled by default — no external tools or models needed to try it out.
-
-To use real models: `cp agents.config.example.json agents.config.json`, then set `"enabled": true` on the agents you want (Ollama / CLI examples included in the config).
+> ⚡ **Quick setup: send the prompt below to your AI assistant (Hermes / Claude / ChatGPT) — it will install Ollama, pull models, and configure everything automatically.**
+>
+> ```
+> Please help me set up Agent Meeting Studio. The project is in the current directory.
+> 1. Check if Ollama is installed, install it if not
+> 2. ollama pull qwen2.5:7b llama3.1:8b mistral:7b
+> 3. Start ollama serve
+> 4. Edit agents.config.json: ensure all three agents have "enabled": true and "baseUrl": "http://127.0.0.1:11434/v1"
+> 5. Run npm start and verify it works
+> ```
 
 Step-by-step alternative:
 

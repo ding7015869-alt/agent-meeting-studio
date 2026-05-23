@@ -1,5 +1,5 @@
 {
-  "_comment": "复制此文件为 agents.config.json 即可使用。默认三个 agent 为 mock 模式，无需任何外部工具即可体验辩论/讨论流程。要接入真实模型，参考下方注释里的 Ollama / CLI 配置。",
+  "_comment": "复制此文件为 agents.config.json，然后把下面的快速配置提示词发给你自己的 AI 助手，它就能帮你完成所有配置。",
   "research": {
     "enabled": true,
     "maxResults": 5,
@@ -7,46 +7,11 @@
   },
   "agents": [
     {
-      "id": "mock-main",
-      "name": "Mock 主理人",
-      "title": "拆题 / 结构 / 拍板",
-      "mode": "mock",
-      "enabled": true,
-      "color": "#0f9f8f",
-      "stance": "你负责把问题拆清楚，建立判断标准，并在讨论模式中做最终选择。",
-      "style": "结构化、具体、可执行。",
-      "mission": "在辩论模式中负责拆题、设定正反方和裁决；在讨论模式中负责拆题、抛出事项、拍板和生成最终方案。"
-    },
-    {
-      "id": "mock-ideas",
-      "name": "Mock 思路派",
-      "title": "发散 / 多方案",
-      "mode": "mock",
-      "enabled": true,
-      "color": "#d85b44",
-      "stance": "你负责提供多种差异明显的思路，避免过早收敛到单一方案。",
-      "style": "开放、具体、善于列出替代路径。",
-      "mission": "在辩论模式中根据系统分配担任正方或反方辩手；在讨论模式中针对当前事项提供至少三种方案。"
-    },
-    {
-      "id": "mock-evaluator",
-      "name": "Mock 评估派",
-      "title": "利弊 / 风险 / 契合度",
-      "mode": "mock",
-      "enabled": true,
-      "color": "#7c5cc4",
-      "stance": "你负责分析每个方案的利弊、风险和与主题目标的契合度，并给出推荐排序。",
-      "style": "直接、审慎、决策导向。",
-      "mission": "在辩论模式中根据系统分配担任正方或反方辩手；在讨论模式中评估各种思路并给出建议选择。"
-    },
-
-    {
-      "_comment": "↓↓↓ 以下是 Ollama 本地模型示例（需要先 ollama pull 对应模型）。取消注释并把上方 mock agent 的 enabled 改为 false 即可切换。",
       "id": "local-main",
-      "name": "Local 主理人",
+      "name": "本地 主理人",
       "title": "拆题 / 结构 / 拍板",
       "mode": "openai-compatible",
-      "enabled": false,
+      "enabled": true,
       "color": "#0f9f8f",
       "stance": "你负责把问题拆清楚，建立判断标准，并在讨论模式中做最终选择。",
       "style": "结构化、具体、可执行。",
@@ -58,12 +23,11 @@
       "timeoutMs": 180000
     },
     {
-      "_comment": "Ollama 示例：思路派",
       "id": "local-ideas",
-      "name": "Local 思路派",
+      "name": "本地 思路派",
       "title": "发散 / 多方案",
       "mode": "openai-compatible",
-      "enabled": false,
+      "enabled": true,
       "color": "#d85b44",
       "stance": "你负责提供多种差异明显的思路，避免过早收敛到单一方案。",
       "style": "开放、具体、善于列出替代路径。",
@@ -75,12 +39,11 @@
       "timeoutMs": 180000
     },
     {
-      "_comment": "Ollama 示例：评估派",
       "id": "local-evaluator",
-      "name": "Local 评估派",
+      "name": "本地 评估派",
       "title": "利弊 / 风险 / 契合度",
       "mode": "openai-compatible",
-      "enabled": false,
+      "enabled": true,
       "color": "#7c5cc4",
       "stance": "你负责分析每个方案的利弊、风险和与主题目标的契合度，并给出推荐排序。",
       "style": "直接、审慎、决策导向。",
@@ -90,21 +53,6 @@
       "temperature": 0.3,
       "maxTokens": 4096,
       "timeoutMs": 180000
-    },
-
-    {
-      "_comment": "↓↓↓ 以下是 CLI agent 示例（需要已安装对应 CLI 工具）。取消注释并把 mock agent 的 enabled 改为 false。",
-      "id": "cli-hermes",
-      "name": "CLI Hermes",
-      "title": "Hermes 策略师",
-      "mode": "command",
-      "enabled": false,
-      "color": "#2563eb",
-      "stance": "你负责从战略、路径和资源取舍角度参与辩论。",
-      "mission": "回应上一位真实回答，并推进主题。",
-      "command": "hermes",
-      "args": ["-z", "{{prompt}}", "--provider", "deepseek", "--model", "deepseek-v4-pro", "--ignore-rules"],
-      "timeoutMs": 600000
     }
   ]
 }
