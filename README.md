@@ -27,7 +27,7 @@
 2. 第二个是思路 agent：针对当前事项提供多种不同方案。
 3. 第三个是评估 agent：分析各种方案的利弊、风险和与主题的契合度。
 
-流程是：主 agent 拆题 -> 逐个事项推进 -> 思路 agent 发散 -> 评估 agent 分析 -> 主 agent 拍板 -> 下一个事项 -> 主 agent 输出最终 HTML 方案文档。讨论模式里的“最多回合”会被解释为“最多事项”。
+流程是：主 agent 拆题 -> 逐个事项推进 -> 思路 agent 发散 -> 评估 agent 分析 -> 主 agent 拍板 -> 下一个事项 -> 主 agent 输出最终 HTML 方案文档。讨论模式里的"最多回合"会被解释为"最多事项"。
 
 最终 HTML 会同时提供三类定位信息：
 
@@ -116,13 +116,11 @@ export LOCAL_MODEL_API_KEY="你的 key"
 
 如果你已经有 Codex、Hermes、Cursor、Claude Code 或自己的 shell wrapper，可以用 `command` 模式。
 
-我本地私有配置接入了 Codex、Hermes、Cursor 三个真实命令型 agent：
+例如接入三个真实命令型 agent：
 
-- Codex 架构派：定义问题、约束、路径和验收标准。
-- Hermes 反方派：强反驳、找失败模式和替代推进方式。
-- Cursor 收敛派：把冲突压缩成决策、实验或下一步动作。
-
-Cursor 需要先登录：`/Users/ilegend/.local/bin/cursor-agent login`。如果未登录，页面会显示真实认证错误，不会伪造回答。
+- 架构派：定义问题、约束、路径和验收标准。
+- 反方派：强反驳、找失败模式和替代推进方式。
+- 收敛派：把冲突压缩成决策、实验或下一步动作。
 
 接入真实 CLI 时使用 `command` 模式：
 
@@ -135,7 +133,7 @@ Cursor 需要先登录：`/Users/ilegend/.local/bin/cursor-agent login`。如果
   "stance": "你负责从战略、路径和资源取舍角度参与辩论。",
   "mission": "回应上一位真实回答，并推进主题。",
   "command": "hermes",
-  "args": ["-z", "{{prompt}}", "--provider", "openai-codex", "--model", "gpt-5.5", "--ignore-rules"],
+  "args": ["-z", "{{prompt}}", "--provider", "deepseek", "--model", "deepseek-v4-pro", "--ignore-rules"],
   "timeoutMs": 180000
 }
 ```
@@ -166,44 +164,171 @@ Codex 这类需要把最终回答写入文件的 CLI 可以用：
 
 `research.enabled` 开启时，后端会在会话开始前用 Bing RSS 检索主题相关公开信息，把标题、摘要和链接放进每个 agent 的提示词里。agent 必须说明使用了哪些线索，或说明为什么本轮不依赖外部信息。
 
-## 发布到 GitHub
+---
 
-发布前建议这样处理：
+# Agent Meeting Studio (English)
+
+A local-first, multi-agent debate and discussion tool. Bring your own agents — CLI-based (Hermes, Codex, Cursor) or local models (Ollama, vLLM, LM Studio) — and run structured debates or brainstorming sessions with full session replay.
+
+![screenshot](docs/screenshot.png)
+
+The UI defaults to Chinese. Click **English** in the top-right corner to switch.
+
+## Two Modes
+
+### Debate Mode
+
+Debate mode always uses the first three selected participant agents:
+
+1. **Moderator Agent** — breaks the topic into debate points, defines pro/con stances and judging criteria for each.
+2. **Pro Debater** — defends the pro position with the strongest arguments.
+3. **Con Debater** — defends the con position, only attacking the pro side.
+
+Each debate point follows a structured flow: moderator opens → pro opening → con opening → pro rebuttal → con rebuttal → moderator ruling. After all points, the moderator delivers the final verdict.
+
+Internal prompts require agents to reason deeply about the topic, opponents' actual responses, their assigned stance, web research clues, and the end goal — but external output must be restructured into natural language, never rigid tables or templates.
+
+### Discussion Mode
+
+Discussion mode always uses the first three selected participant agents:
+
+1. **Moderator Agent** — breaks the user's input into agenda items; kicks off each item; evaluates proposals and picks a direction; produces a final HTML plan.
+2. **Ideation Agent** — generates diverse approaches for the current agenda item.
+3. **Evaluation Agent** — analyzes trade-offs, risks, and alignment with the topic.
+
+Flow: moderator breaks down topic → iterate through items → ideation agent diverges → evaluation agent analyzes → moderator decides → next item → moderator outputs final HTML document. The "max rounds" setting is interpreted as "max agenda items" in discussion mode.
+
+The final HTML is accessible in three ways:
+
+- Browser URL: `http://127.0.0.1:5177/api/sessions/<session-id>/document`
+- Standalone HTML file: `data/exports/<session-id>.html`
+- Raw session data: `data/sessions/<session-id>.json`
+
+The result panel displays these paths with copy buttons.
+
+## Getting Started
 
 ```bash
-git init
-git add .
-git status
+npm install
+cp agents.config.example.json agents.config.json
+npm start          # starts server + opens browser
 ```
 
-确认这些文件没有被提交：
-
-- `agents.config.json`
-- `.env`
-- `data/sessions/*.json`
-- `data/exports/*.html`
-- `dist/`
-- `node_modules/`
-
-如果你之前已经把私有配置加进 Git 索引，先移出索引但保留本地文件：
+Step-by-step alternative:
 
 ```bash
-git rm --cached agents.config.json .env 2>/dev/null || true
-git rm --cached -r data/sessions data/exports dist node_modules 2>/dev/null || true
+npm run server     # backend only (port 8787)
+npm run open       # opens http://127.0.0.1:8787 in browser
+npm run dev        # dev mode (Vite HMR on 5177 + backend on 8787)
 ```
 
-推荐提交：
+In dev mode, the frontend runs at `http://127.0.0.1:5177`, backend at `http://127.0.0.1:8787`. After production build, open `http://127.0.0.1:8787` directly.
+
+## Connecting Your Agents / Models
+
+Edit `agents.config.json`. This is your private local configuration — it's excluded by `.gitignore` and should never be committed to GitHub.
+
+The UI shows agent positioning fields (`title`, `role`, `stance`) rather than backend brands. The actual backend details stay in your config: `mode`, `command`, `model`, `baseUrl`.
+
+### Option 1: OpenAI-compatible Local Models
+
+Recommended for public deployment. Ollama, LM Studio, vLLM, llama.cpp server — anything that exposes an OpenAI-compatible `/chat/completions` endpoint — works via the `openai-compatible` mode.
+
+Ollama quickstart:
 
 ```bash
-git add .
-git commit -m "Initial release"
-gh repo create agent-meeting-studio --public --source=. --remote=origin --push
+ollama pull qwen2.5:7b
+ollama pull llama3.1:8b
+ollama pull mistral:7b
+ollama serve
 ```
 
-GitHub 仓库简介可以写：
+Example `agents.config.json` entry:
 
-> Local multi-agent debate and discussion studio. Connect Ollama, LM Studio, vLLM, Codex, Cursor, or any OpenAI-compatible local model; run serial agent debates or structured discussions that produce HTML plans.
+```json
+{
+  "id": "local-main",
+  "name": "Local Moderator",
+  "title": "Breakdown / Structure / Decide",
+  "mode": "openai-compatible",
+  "enabled": true,
+  "color": "#0f9f8f",
+  "stance": "Break down problems clearly, establish evaluation criteria, and make final decisions in discussion mode.",
+  "mission": "In debate mode: decompose topics, set pro/con stances, and judge. In discussion mode: break down agenda, raise items, decide, and produce final plan.",
+  "baseUrl": "http://127.0.0.1:11434/v1",
+  "model": "qwen2.5:7b",
+  "apiKeyEnv": "",
+  "temperature": 0.4,
+  "maxTokens": 4096,
+  "timeoutMs": 180000
+}
+```
 
-适合放在 README 顶部的关键词：
+If your local gateway requires an API key, use an environment variable reference instead of hardcoding:
 
-`multi-agent`, `local-first`, `ollama`, `lm-studio`, `openai-compatible`, `agent-meeting`, `ai-workflow`, `typescript`, `react`, `vite`
+```json
+{
+  "mode": "openai-compatible",
+  "baseUrl": "http://127.0.0.1:1234/v1",
+  "model": "local-model-name",
+  "apiKeyEnv": "LOCAL_MODEL_API_KEY"
+}
+```
+
+Then set it in `.env` or your shell:
+
+```bash
+export LOCAL_MODEL_API_KEY="your-key"
+```
+
+### Option 2: CLI Agents
+
+If you already have Codex, Hermes, Cursor, Claude Code, or your own shell wrapper, use `command` mode.
+
+Example: three CLI agents forming a debate panel:
+
+- **Architect** — defines problems, constraints, paths, and acceptance criteria.
+- **Devil's Advocate** — challenges assumptions, finds failure modes, proposes alternatives.
+- **Converger** — compresses conflict into decisions, experiments, or next actions.
+
+CLI agent config using `command` mode:
+
+```json
+{
+  "id": "hermes-strategist",
+  "name": "Hermes Strategist",
+  "mode": "command",
+  "enabled": true,
+  "stance": "Participate in debates from a strategy, roadmap, and resource trade-off perspective.",
+  "mission": "Respond to the previous agent's actual reply and advance the topic.",
+  "command": "hermes",
+  "args": ["-z", "{{prompt}}", "--provider", "deepseek", "--model", "deepseek-v4-pro", "--ignore-rules"],
+  "timeoutMs": 180000
+}
+```
+
+For CLIs like Codex that write the final response to a file:
+
+```json
+{
+  "command": "codex",
+  "args": ["exec", "--output-last-message", "{{outputFile}}", "{{prompt}}"],
+  "stdoutMode": "ignore",
+  "outputFile": true
+}
+```
+
+Template variables:
+
+- `{{prompt}}` — full agent prompt.
+- `{{topic}}` — current topic.
+- `{{context}}` — user-supplied background.
+- `{{goal}}` — desired outcome.
+- `{{round}}` — current round number.
+- `{{outputFile}}` — temp file path, for CLIs like Codex `--output-last-message`.
+
+If your agent reads from stdin, set `"stdin": "{{prompt}}"`.
+
+## Web Research
+
+When `research.enabled` is on, the backend fetches public information about the topic via Bing RSS before the session starts. Article titles, snippets, and URLs are injected into each agent's prompt. Agents must cite which clues they used — or explain why they didn't rely on external information this round.
