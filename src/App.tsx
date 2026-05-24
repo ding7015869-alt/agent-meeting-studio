@@ -1,5 +1,6 @@
 import {
   AlertCircle,
+  ArrowUp,
   Bot,
   CheckCircle2,
   ChevronRight,
@@ -104,6 +105,7 @@ const uiText = {
     createTopic: "发起一个议题",
     currentTopic: "正在推进",
     editTopic: "调整议题",
+    newSession: "开始新会议",
     chooseMode: "选择工作流",
     debateMode: "辩论",
     debateModeLabel: "对抗裁决",
@@ -264,6 +266,7 @@ const uiText = {
     createTopic: "Start a new topic",
     currentTopic: "Current run",
     editTopic: "Refine topic",
+    newSession: "New Meeting",
     chooseMode: "Choose workflow",
     debateMode: "Debate",
     debateModeLabel: "Adversarial",
@@ -776,6 +779,7 @@ function App() {
   const [deletingSessionId, setDeletingSessionId] = useState("");
   const [clearingHistory, setClearingHistory] = useState(false);
   const [clockNow, setClockNow] = useState(() => Date.now());
+  const [showScrollTop, setShowScrollTop] = useState(false);
   const eventSourceRef = useRef<EventSource | null>(null);
   const timelineRef = useRef<HTMLDivElement | null>(null);
   const messageRefs = useRef<Record<string, HTMLElement | null>>({});
@@ -843,7 +847,11 @@ function App() {
       setSession(JSON.parse((event as MessageEvent).data));
     });
     source.addEventListener("session", (event) => {
-      setSession(JSON.parse((event as MessageEvent).data));
+      const updated = JSON.parse((event as MessageEvent).data) as DebateSession;
+      setSession(updated);
+      if (updated.status === "complete" || updated.status === "stopped") {
+        setBusy(false);
+      }
     });
     source.addEventListener("message-start", (event) => {
       const message = JSON.parse((event as MessageEvent).data) as DebateMessage;
@@ -858,6 +866,7 @@ function App() {
       setSession((current) => (current ? { ...current, messages: upsertMessage(current.messages, message) } : current));
     });
     source.addEventListener("result", () => {
+      setBusy(false);
       void loadSessions();
     });
     source.addEventListener("deleted", () => {
@@ -884,6 +893,18 @@ function App() {
       timeline.scrollTo({ top: timeline.scrollHeight, behavior: "smooth" });
     }
   }, [session?.messages]);
+
+  useEffect(() => {
+    const timeline = timelineRef.current;
+    if (!timeline) return;
+    const handleScroll = () => setShowScrollTop(timeline.scrollTop > 400);
+    timeline.addEventListener("scroll", handleScroll, { passive: true });
+    return () => timeline.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  function scrollToTop() {
+    timelineRef.current?.scrollTo({ top: 0, behavior: "smooth" });
+  }
 
   function updateTopic(value: string) {
     setTopicTouched(true);
@@ -1299,10 +1320,18 @@ function App() {
               <strong>{session.topic}</strong>
               <small>{session.goal}</small>
             </div>
-            <button className="quiet-button" type="button" onClick={() => setComposerCollapsed(false)}>
-              <Settings size={16} />
-              {ui.editTopic}
-            </button>
+            <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
+              {session.status === "complete" || session.status === "stopped" ? (
+                <button className="primary-button" type="button" onClick={() => { setSession(null); setComposerCollapsed(false); setBusy(false); }}>
+                  <Plus size={16} />
+                  {ui.newSession}
+                </button>
+              ) : null}
+              <button className="quiet-button" type="button" onClick={() => setComposerCollapsed(false)}>
+                <Settings size={16} />
+                {ui.editTopic}
+              </button>
+            </div>
           </div>
         ) : (
           <div className={`composer-grid ${session ? "is-compact" : ""}`}>
@@ -1438,6 +1467,12 @@ function App() {
             <EmptyState selectedAgents={selectedAgents} language={language} />
           )}
         </div>
+
+        {showScrollTop ? (
+          <button className="scroll-top-button" type="button" onClick={scrollToTop} title={language === "zh" ? "回到顶部" : "Back to top"}>
+            <ArrowUp size={20} />
+          </button>
+        ) : null}
       </section>
 
       <aside className="right-panel">
