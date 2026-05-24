@@ -12,18 +12,12 @@ const rootDir = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 
 // 手动加载 .env（不用 dotenv 依赖，零外部包）
 const envPath = join(rootDir, ".env");
-try {
-  const envRaw = readFileSync(envPath, "utf8");
-  for (const line of envRaw.split("\n")) {
-    const trimmed = line.trim();
-    if (!trimmed || trimmed.startsWith("#")) continue;
-    const eqIdx = trimmed.indexOf("=");
-    if (eqIdx === -1) continue;
-    const key = trimmed.slice(0, eqIdx).trim();
-    const val = trimmed.slice(eqIdx + 1).trim().replace(/^["']|["']$/g, "");
-    if (key && !(key in process.env)) process.env[key] = val;
-  }
-} catch (_) { /* .env 不存在或不可读，跳过 */ }
+if (existsSync(envPath)) {
+  readFileSync(envPath, "utf-8").split(/\r?\n/).forEach(line => {
+    const m = line.match(/^\s*([^#][^=]+?)\s*=\s*(.*)$/);
+    if (m && !process.env[m[1]]) process.env[m[1]] = m[2].trim();
+  });
+}
 
 const configPath = resolve(process.env.AGENT_CONFIG || join(rootDir, "agents.config.json"));
 const sessionsDir = resolve(process.env.SESSIONS_DIR || join(rootDir, "data", "sessions"));
