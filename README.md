@@ -49,10 +49,9 @@ npm start          # 启动服务 + 自动打开浏览器
 >
 > ```
 > 你现在正在和我对话——所以你就是我要接入的 AI。请把自己配进 agents.config.json。
-> 1. command 填你自己的 CLI 命令，args 用 {{prompt}}
-> 2. 生成 3 个角色：主理人、思路位、评估位，共用一个 command 但 stance/mission 不同
-> 3. 如果你没有 CLI，fallback 到 Ollama：ollama pull qwen2.5:7b llama3.1:8b mistral:7b && ollama serve
-> 4. 配置完成后 npm start 验证
+> 优先级：① 有 API 端点就用 openai-compatible（填 baseUrl / model / apiKeyEnv）→ ② 没有 API 用 command 模式（填你自己的 CLI 命令，args 用 {{prompt}}）→ ③ 都不可用就停下来问我。
+> 3 个角色：主理人 / 思路位 / 评估位，共用一套后端，stance 和 mission 各不同。
+> 不要建议本地模型（Ollama / vLLM）。
 > ```
 
 你也可以分步操作：
@@ -234,10 +233,9 @@ npm start          # starts server + opens browser
 >
 > ```
 > You are the AI I'm talking to — plug yourself into agents.config.json.
-> 1. Use command mode with your own CLI command, args with {{prompt}}
-> 2. Create 3 roles (Lead / Ideator / Evaluator), same command, different stance/mission
-> 3. If no CLI, fallback: ollama pull qwen2.5:7b llama3.1:8b mistral:7b && ollama serve
-> 4. npm start to verify
+> Priority: ① API endpoint available? → openai-compatible (baseUrl / model / apiKeyEnv) → ② No API? → command mode (your CLI + {{prompt}}) → ③ Neither? Stop and ask me.
+> 3 roles: Lead / Ideator / Evaluator. Same backend, different stance/mission.
+> Do NOT suggest local models (Ollama / vLLM).
 > ```
 
 Step-by-step alternative:
