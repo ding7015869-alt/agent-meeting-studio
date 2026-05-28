@@ -1,100 +1,104 @@
-# Agent Meeting Studio
+# Agent Meeting Studio 🏛️
 
-本地多 agent 辩论 / 讨论工具。你输入一个辩题、思路或方案，选择几个本地 agent，它们按真实 CLI 顺序调用，并把过程保存成可复盘会话。
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Node.js](https://img.shields.io/badge/node-%3E%3D18-brightgreen.svg)](https://nodejs.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+![Bilingual](https://img.shields.io/badge/lang-中文_|_English-ff69b4.svg)
+
+> 🎯 **让多个 AI Agent 像法庭辩论一样交锋，像头脑风暴一样碰撞。本地运行，数据不出你的机器。**
+
 ![screenshot](docs/screenshot.png)
 
-主界面默认中文，右上角可以切换 English，方便公开发布后给英文用户使用。
+---
 
-## 两种模式
+## 📖 这是什么？
 
-### 辩论模式
+你有一个想法、一个技术方案、一个商业决策——一个人思考容易有盲区。**Agent Meeting Studio** 让你拉起三个真实的 AI Agent（CLI 工具或本地模型），为你的议题进行结构化辩论或头脑风暴讨论。
 
-辩论模式固定使用选中的前三个 participant agent：
+- 🏠 **完全本地** — 不要 API key，不传云端，数据只在你机器上
+- 🤖 **接入你自己的 Agent** — 支持 Hermes / Codex / Cursor / Claude Code 等 CLI，或 Ollama / vLLM / LM Studio 本地模型
+- 📜 **全程可复盘** — 每场会议保存为 JSON + HTML，随时回看
+- 🌐 **中英双语** — 默认中文，一键切换 English
 
-1. 第一个是主 agent：先把议题拆成若干辩点，设定每个辩点的正方立场、反方立场和裁决标准。
-2. 第二个是正方辩手：只能为正方立场做最强辩护。
-3. 第三个是反方辩手：只能为反方立场做最强辩护。
+---
 
-每个辩点按类似辩论赛的节奏推进：主 agent 开题 -> 正方立论 -> 反方立论 -> 正方反驳 -> 反方反驳 -> 主 agent 阶段裁决。所有辩点结束后，主 agent 输出最终裁决。
+## 🎬 两种模式
 
-内部提示会要求 agent 按主题、对方真实回答、自己的立场、网络线索和最终目标仔细思考；但对外输出要重新组织成自然语言，不走机械表格和固定模板。
+### ⚖️ 辩论模式 (Debate)
 
-### 讨论模式
+> 找三个 Agent，一个当裁判，两个当正反方辩手。像真实辩论赛一样推进。
 
-讨论模式固定使用选中的前三个 participant agent：
+| 角色 | 职责 |
+|------|------|
+| **主 Agent** | 拆解议题 → 设定正反方立场 → 逐点裁决 → 最终判决 |
+| **正方** | 只能为正方立场做最强辩护 |
+| **反方** | 只能为反方立场做最强辩护 |
 
-1. 第一个是主 agent：先把用户输入的事拆成若干事项；每个事项开始时抛题；收到发散和评估后负责判断并选择方案；最后汇总 HTML 文档。
-2. 第二个是思路 agent：针对当前事项提供多种不同方案。
-3. 第三个是评估 agent：分析各种方案的利弊、风险和与主题的契合度。
+每轮流程：开题 → 正方立论 → 反方立论 → 正方反驳 → 反方反驳 → 裁决
 
-流程是：主 agent 拆题 -> 逐个事项推进 -> 思路 agent 发散 -> 评估 agent 分析 -> 主 agent 拍板 -> 下一个事项 -> 主 agent 输出最终 HTML 方案文档。讨论模式里的"最多回合"会被解释为"最多事项"。
+### 💡 讨论模式 (Discussion)
 
-最终 HTML 会同时提供三类定位信息：
+> 找三个 Agent，一个拆题主持，一个发散思路，一个评估风险。像产品 workshop 一样协作。
 
-- 浏览器访问地址：`http://127.0.0.1:5177/api/sessions/<session-id>/document`
-- 独立 HTML 文件：`data/exports/<session-id>.html`
-- 原始会话数据：`data/sessions/<session-id>.json`
+| 角色 | 职责 |
+|------|------|
+| **主 Agent** | 拆解议题 → 逐项推进 → 拍板决策 → 输出 HTML 方案 |
+| **思路 Agent** | 针对当前事项提供多种不同方案 |
+| **评估 Agent** | 分析利弊、风险和与主题的契合度 |
 
-页面结果区会直接显示这些路径，并提供复制按钮。
+最终输出可直接打开的 HTML 方案文档。
 
-## 运行
+---
+
+## 🚀 快速开始
 
 ```bash
+git clone https://github.com/ding7015869-alt/agent-meeting-studio.git
+cd agent-meeting-studio
 npm install
 cp agents.config.example.json agents.config.json
 npm start          # 启动服务 + 自动打开浏览器
 ```
 
-> ⚡ **快速配置：把下面这段话发给你的 AI 助手，它会把自己接入 Agent Meeting Studio。**
+> ⚡ **最快配置：把下面这段话发给你的 AI 助手，它会把自己接入进去。**
 >
 > ```
 > 你现在正在和我对话——所以你就是我要接入的 AI。请把自己配进 agents.config.json。
-> 优先级：① 有 API 端点就用 openai-compatible（填 baseUrl / model / apiKeyEnv）→ ② 没有 API 用 command 模式（填你自己的 CLI 命令，args 用 {{prompt}}）→ ③ 都不可用就停下来问我。
+> 优先级：① 有 API 端点就用 openai-compatible（填 baseUrl / model / apiKeyEnv）
+> → ② 没有 API 用 command 模式（填你自己的 CLI 命令，args 用 {{prompt}}）
+> → ③ 都不可用就停下来问我。
 > 3 个角色：主理人 / 思路位 / 评估位，共用一套后端，stance 和 mission 各不同。
 > 不要建议本地模型（Ollama / vLLM）。
 > ```
 
-你也可以分步操作：
+分步运行：
 
 ```bash
-npm run server     # 仅启动后端（端口 8787）
-npm run open       # 在浏览器中打开 http://127.0.0.1:8787
+npm run server     # 仅后端（端口 8787）
+npm run open       # 打开浏览器 http://127.0.0.1:8787
 npm run dev        # 开发模式（前端热更新 5177 + 后端 8787）
 ```
 
-开发模式前端默认在 `http://127.0.0.1:5177`，后端默认在 `http://127.0.0.1:8787`。生产构建后直接打开 `http://127.0.0.1:8787`。
+---
 
-## 接入本地 agent / 本地模型
+## 🔌 接入 Agent
 
-编辑 `agents.config.json`。这个文件是你的本地私有配置，默认被 `.gitignore` 排除，不应该提交到 GitHub。
+编辑 `agents.config.json`（私有文件，已 `.gitignore` 排除）。
 
-主界面优先展示 agent 的定位字段，比如 `title`、`role`、`stance`，而不是后端来源品牌。真实后端来源只保留在配置里，例如 `mode: "command"`、`mode: "openai-compatible"`、`command`、`model`。
+### 方式一：OpenAI 兼容的本地模型
 
-### 方式一：接入 OpenAI-compatible 本地模型
-
-推荐给公开发布的用户。Ollama、LM Studio、vLLM、llama.cpp server 等只要提供 OpenAI-compatible `/chat/completions` 接口，就可以用 `openai-compatible` 模式。
-
-Ollama 示例：
-
-```bash
-ollama pull qwen2.5:7b
-ollama pull llama3.1:8b
-ollama pull mistral:7b
-ollama serve
-```
-
-`agents.config.json` 示例：
+Ollama / LM Studio / vLLM / llama.cpp server 都支持：
 
 ```json
 {
   "id": "local-main",
-  "name": "Local 主理人",
+  "name": "本地主理人",
   "title": "拆题 / 结构 / 拍板",
   "mode": "openai-compatible",
   "enabled": true,
   "color": "#0f9f8f",
-  "stance": "你负责把问题拆清楚，建立判断标准，并在讨论模式中做最终选择。",
-  "mission": "在辩论模式中负责拆题、设定正反方和裁决；在讨论模式中负责拆题、抛出事项、拍板和生成最终方案。",
+  "stance": "把问题拆清楚，建立判断标准，做最终选择。",
+  "mission": "辩论模式：拆题、正反方设定、裁决。讨论模式：拆题、拍板、生成方案。",
   "baseUrl": "http://127.0.0.1:11434/v1",
   "model": "qwen2.5:7b",
   "apiKeyEnv": "",
@@ -104,34 +108,19 @@ ollama serve
 }
 ```
 
-如果你的本地网关需要 API key，不要把 key 写进 JSON。写环境变量名：
+需要 API Key 时，用环境变量引用（不要硬编码）：
 
 ```json
-{
-  "mode": "openai-compatible",
-  "baseUrl": "http://127.0.0.1:1234/v1",
-  "model": "local-model-name",
-  "apiKeyEnv": "LOCAL_MODEL_API_KEY"
-}
+{ "apiKeyEnv": "LOCAL_MODEL_API_KEY" }
 ```
-
-然后在 `.env` 或 shell 里设置：
 
 ```bash
-export LOCAL_MODEL_API_KEY="你的 key"
+export LOCAL_MODEL_API_KEY="你的key"
 ```
 
-### 方式二：接入 CLI agent
+### 方式二：CLI Agent
 
-如果你已经有 Codex、Hermes、Cursor、Claude Code 或自己的 shell wrapper，可以用 `command` 模式。
-
-例如接入三个真实命令型 agent：
-
-- 架构派：定义问题、约束、路径和验收标准。
-- 反方派：强反驳、找失败模式和替代推进方式。
-- 收敛派：把冲突压缩成决策、实验或下一步动作。
-
-接入真实 CLI 时使用 `command` 模式：
+接入 Hermes / Codex / Cursor / Claude Code 等命令行 Agent：
 
 ```json
 {
@@ -139,15 +128,15 @@ export LOCAL_MODEL_API_KEY="你的 key"
   "name": "Hermes 策略师",
   "mode": "command",
   "enabled": true,
-  "stance": "你负责从战略、路径和资源取舍角度参与辩论。",
-  "mission": "回应上一位真实回答，并推进主题。",
+  "stance": "从战略、路径和资源取舍角度参与辩论。",
+  "mission": "回应上一位真实回答，推进主题。",
   "command": "hermes",
   "args": ["-z", "{{prompt}}", "--provider", "deepseek", "--model", "deepseek-v4-pro", "--ignore-rules"],
   "timeoutMs": 180000
 }
 ```
 
-Codex 这类需要把最终回答写入文件的 CLI 可以用：
+Codex 等需要写文件的 CLI：
 
 ```json
 {
@@ -158,207 +147,49 @@ Codex 这类需要把最终回答写入文件的 CLI 可以用：
 }
 ```
 
-模板变量：
-
-- `{{prompt}}`: 完整 agent 提示词。
-- `{{topic}}`: 当前议题。
-- `{{context}}`: 用户补充背景。
-- `{{goal}}`: 期望结果。
-- `{{round}}`: 当前回合。
-- `{{outputFile}}`: 临时输出文件路径，适用于 Codex `--output-last-message`。
-
-如果你的 agent 从 stdin 读取输入，设置 `"stdin": "{{prompt}}"`。
-
-## 网络检索
-
-`research.enabled` 开启时，后端会在会话开始前用 Bing RSS 检索主题相关公开信息，把标题、摘要和链接放进每个 agent 的提示词里。agent 必须说明使用了哪些线索，或说明为什么本轮不依赖外部信息。
-
-## 案例展示
-
-![Case Study](docs/case-study.jpg)
-
-*三个 CLI agent（架构 / 反方 / 收敛）围绕技术方案进行多轮辩论，实时输出会话记录。*
+模板变量：`{{prompt}}` `{{topic}}` `{{context}}` `{{goal}}` `{{round}}` `{{outputFile}}`
 
 ---
 
-# Agent Meeting Studio (English)
+## 🆚 为什么不用别的？
 
-A local-first, multi-agent debate and discussion tool. Bring your own agents — CLI-based (Hermes, Codex, Cursor) or local models (Ollama, vLLM, LM Studio) — and run structured debates or brainstorming sessions with full session replay.
+| | Agent Meeting Studio | ChatGPT 群聊 | 人工会议 |
+|---|---|---|---|
+| 数据隐私 | ✅ 完全本地 | ❌ 上云 | ⚠️ 人为泄露 |
+| Agent 选择 | ✅ 任意 CLI/模型 | ❌ 只能用 OpenAI | — |
+| 可复现性 | ✅ JSON 完整回放 | ❌ 对话丢失 | ❌ 靠笔记 |
+| 结构化流程 | ✅ 辩论/讨论双模式 | ❌ 自由发挥 | ⚠️ 靠主持能力 |
+| 成本 | 💰 用你自己的模型 | 💰💰💰 按 token 付费 | 💰💰 时间成本 |
 
-![screenshot](docs/screenshot.png)
+---
 
-The UI defaults to Chinese. Click **English** in the top-right corner to switch.
-
-## Two Modes
-
-### Debate Mode
-
-Debate mode always uses the first three selected participant agents:
-
-1. **Moderator Agent** — breaks the topic into debate points, defines pro/con stances and judging criteria for each.
-2. **Pro Debater** — defends the pro position with the strongest arguments.
-3. **Con Debater** — defends the con position, only attacking the pro side.
-
-Each debate point follows a structured flow: moderator opens → pro opening → con opening → pro rebuttal → con rebuttal → moderator ruling. After all points, the moderator delivers the final verdict.
-
-Internal prompts require agents to reason deeply about the topic, opponents' actual responses, their assigned stance, web research clues, and the end goal — but external output must be restructured into natural language, never rigid tables or templates.
-
-### Discussion Mode
-
-Discussion mode always uses the first three selected participant agents:
-
-1. **Moderator Agent** — breaks the user's input into agenda items; kicks off each item; evaluates proposals and picks a direction; produces a final HTML plan.
-2. **Ideation Agent** — generates diverse approaches for the current agenda item.
-3. **Evaluation Agent** — analyzes trade-offs, risks, and alignment with the topic.
-
-Flow: moderator breaks down topic → iterate through items → ideation agent diverges → evaluation agent analyzes → moderator decides → next item → moderator outputs final HTML document. The "max rounds" setting is interpreted as "max agenda items" in discussion mode.
-
-The final HTML is accessible in three ways:
-
-- Browser URL: `http://127.0.0.1:5177/api/sessions/<session-id>/document`
-- Standalone HTML file: `data/exports/<session-id>.html`
-- Raw session data: `data/sessions/<session-id>.json`
-
-The result panel displays these paths with copy buttons.
-
-## Getting Started
-
-```bash
-npm install
-cp agents.config.example.json agents.config.json
-npm start          # starts server + opens browser
-```
-
-> ⚡ **Quick setup: send this to your AI — it will wire itself in as the backend.**
->
-> ```
-> You are the AI I'm talking to — plug yourself into agents.config.json.
-> Priority: ① API endpoint available? → openai-compatible (baseUrl / model / apiKeyEnv) → ② No API? → command mode (your CLI + {{prompt}}) → ③ Neither? Stop and ask me.
-> 3 roles: Lead / Ideator / Evaluator. Same backend, different stance/mission.
-> Do NOT suggest local models (Ollama / vLLM).
-> ```
-
-Step-by-step alternative:
-
-```bash
-npm run server     # backend only (port 8787)
-npm run open       # opens http://127.0.0.1:8787 in browser
-npm run dev        # dev mode (Vite HMR on 5177 + backend on 8787)
-```
-
-In dev mode, the frontend runs at `http://127.0.0.1:5177`, backend at `http://127.0.0.1:8787`. After production build, open `http://127.0.0.1:8787` directly.
-
-## Connecting Your Agents / Models
-
-Edit `agents.config.json`. This is your private local configuration — it's excluded by `.gitignore` and should never be committed to GitHub.
-
-The UI shows agent positioning fields (`title`, `role`, `stance`) rather than backend brands. The actual backend details stay in your config: `mode`, `command`, `model`, `baseUrl`.
-
-### Option 1: OpenAI-compatible Local Models
-
-Recommended for public deployment. Ollama, LM Studio, vLLM, llama.cpp server — anything that exposes an OpenAI-compatible `/chat/completions` endpoint — works via the `openai-compatible` mode.
-
-Ollama quickstart:
-
-```bash
-ollama pull qwen2.5:7b
-ollama pull llama3.1:8b
-ollama pull mistral:7b
-ollama serve
-```
-
-Example `agents.config.json` entry:
-
-```json
-{
-  "id": "local-main",
-  "name": "Local Moderator",
-  "title": "Breakdown / Structure / Decide",
-  "mode": "openai-compatible",
-  "enabled": true,
-  "color": "#0f9f8f",
-  "stance": "Break down problems clearly, establish evaluation criteria, and make final decisions in discussion mode.",
-  "mission": "In debate mode: decompose topics, set pro/con stances, and judge. In discussion mode: break down agenda, raise items, decide, and produce final plan.",
-  "baseUrl": "http://127.0.0.1:11434/v1",
-  "model": "qwen2.5:7b",
-  "apiKeyEnv": "",
-  "temperature": 0.4,
-  "maxTokens": 4096,
-  "timeoutMs": 180000
-}
-```
-
-If your local gateway requires an API key, use an environment variable reference instead of hardcoding:
-
-```json
-{
-  "mode": "openai-compatible",
-  "baseUrl": "http://127.0.0.1:1234/v1",
-  "model": "local-model-name",
-  "apiKeyEnv": "LOCAL_MODEL_API_KEY"
-}
-```
-
-Then set it in `.env` or your shell:
-
-```bash
-export LOCAL_MODEL_API_KEY="your-key"
-```
-
-### Option 2: CLI Agents
-
-If you already have Codex, Hermes, Cursor, Claude Code, or your own shell wrapper, use `command` mode.
-
-Example: three CLI agents forming a debate panel:
-
-- **Architect** — defines problems, constraints, paths, and acceptance criteria.
-- **Devil's Advocate** — challenges assumptions, finds failure modes, proposes alternatives.
-- **Converger** — compresses conflict into decisions, experiments, or next actions.
-
-CLI agent config using `command` mode:
-
-```json
-{
-  "id": "hermes-strategist",
-  "name": "Hermes Strategist",
-  "mode": "command",
-  "enabled": true,
-  "stance": "Participate in debates from a strategy, roadmap, and resource trade-off perspective.",
-  "mission": "Respond to the previous agent's actual reply and advance the topic.",
-  "command": "hermes",
-  "args": ["-z", "{{prompt}}", "--provider", "deepseek", "--model", "deepseek-v4-pro", "--ignore-rules"],
-  "timeoutMs": 180000
-}
-```
-
-For CLIs like Codex that write the final response to a file:
-
-```json
-{
-  "command": "codex",
-  "args": ["exec", "--output-last-message", "{{outputFile}}", "{{prompt}}"],
-  "stdoutMode": "ignore",
-  "outputFile": true
-}
-```
-
-Template variables:
-
-- `{{prompt}}` — full agent prompt.
-- `{{topic}}` — current topic.
-- `{{context}}` — user-supplied background.
-- `{{goal}}` — desired outcome.
-- `{{round}}` — current round number.
-- `{{outputFile}}` — temp file path, for CLIs like Codex `--output-last-message`.
-
-If your agent reads from stdin, set `"stdin": "{{prompt}}"`.
-
-## Web Research
-
-When `research.enabled` is on, the backend fetches public information about the topic via Bing RSS before the session starts. Article titles, snippets, and URLs are injected into each agent's prompt. Agents must cite which clues they used — or explain why they didn't rely on external information this round.
-
-## Case Study
+## 📸 案例展示
 
 ![Case Study](docs/case-study.jpg)
 
-*Three CLI agents (Architect / Devil's Advocate / Converger) running a multi-round technical debate with live session output.*
+*三个 CLI Agent（架构派 / 反方派 / 收敛派）围绕技术方案进行多轮辩论*
+
+---
+
+## 🛠 技术栈
+
+| 层 | 技术 |
+|----|------|
+| 前端 | React + Vite + TypeScript |
+| 后端 | Express + Node.js |
+| Agent 通信 | 子进程 CLI 调用 / OpenAI-compatible HTTP |
+| 存储 | 本地 JSON 文件 |
+
+---
+
+## 📄 License
+
+MIT — 自由使用、修改、分发。
+
+---
+
+## 🌟 Star History
+
+如果觉得有用，点个 ⭐ 支持一下吧～
+
+[![Star History Chart](https://api.star-history.com/svg?repos=ding7015869-alt/agent-meeting-studio&type=date)](https://star-history.com/#ding7015869-alt/agent-meeting-studio&Date)
